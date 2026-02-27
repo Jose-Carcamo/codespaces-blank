@@ -32,7 +32,7 @@ _start:
     mov $255, %rdx
     syscall         # rax = checking to see if the user entered something
 
-    # Making a pointer for the stsart of the first stirng
+    # Making a pointer for the start of the first string
     lea s1(%rip), %r10
     test %rax, %rax
     jz prompt2
@@ -80,7 +80,7 @@ s2_no_nl:
 compute:
     lea s1(%rip), %rsi
     lea s2(%rip), %rdi
-    xor %r12, %r12  # total = Set intitial hamming distance counter to 0
+    xor %r12, %r12  # total = Set initial hamming distance counter to 0
 
 char_loop:
     movb (%rsi), %al
