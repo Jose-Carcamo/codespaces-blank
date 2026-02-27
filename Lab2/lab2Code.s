@@ -18,21 +18,21 @@ nl:     .byte 10
 .section .text
 .global _start
 _start:
-    # Prompt 1
+    # Asking the user to input the first string
     mov $1, %rax
     mov $1, %rdi
     lea p1(%rip), %rsi
     mov $p1len, %rdx
     syscall
 
-    # Read s1
+    # Requesting input and storing it in s1
     mov $0, %rax
     mov $0, %rdi
     lea s1(%rip), %rsi
     mov $255, %rdx
-    syscall                    # rax = bytes read
+    syscall         # rax = checking to see if the user entered something
 
-    # Null-terminate s1
+    # Making a pointer for the stsart of the first stirng
     lea s1(%rip), %r10
     test %rax, %rax
     jz prompt2
@@ -48,21 +48,21 @@ s1_no_nl:
     movb $0, (%r10,%rax,1)
 
 prompt2:
-    # Prompt 2
+    # Asking the user to input the second string
     mov $1, %rax
     mov $1, %rdi
     lea p2(%rip), %rsi
     mov $p2len, %rdx
     syscall
 
-    # Read s2
+    # Taking in the second user string and storing it in s2
     mov $0, %rax
     mov $0, %rdi
     lea s2(%rip), %rsi
     mov $255, %rdx
     syscall
 
-    # Null-terminate s2
+    # removing the newline character and null terminating s2
     lea s2(%rip), %r11
     test %rax, %rax
     jz compute
@@ -80,7 +80,7 @@ s2_no_nl:
 compute:
     lea s1(%rip), %rsi
     lea s2(%rip), %rdi
-    xor %r12, %r12             # total = 0  (R12 survives syscall)
+    xor %r12, %r12  # total = Set intitial hamming distance counter to 0
 
 char_loop:
     movb (%rsi), %al
@@ -91,7 +91,7 @@ char_loop:
     test %bl, %bl
     jz done
 
-    xor %bl, %al               # differing bits
+    xor %bl, %al               # finding bits that dont match
 
     mov $8, %rdx
 bit_loop:
@@ -108,17 +108,17 @@ skip_inc:
     jmp char_loop
 
 done:
-    # Print label
+    # displaying the output string before value
     mov $1, %rax
     mov $1, %rdi
     lea out(%rip), %rsi
     mov $outlen, %rdx
     syscall
 
-    # Convert R12 to ASCII and print
+    # convert distance counter into a string and print it
     mov %r12, %rax
     lea buffer(%rip), %r8
-    lea 19(%r8), %rsi          # end of buffer
+    lea 19(%r8), %rsi          # filling in string buffer right to left
     movb $0, (%rsi)
 
     test %rax, %rax
@@ -131,7 +131,7 @@ convert:
     mov $10, %rbx
 convert_loop:
     xor %rdx, %rdx
-    div %rbx                   # rax=quot, rdx=rem
+    div %rbx                   # divide by 10
     add $'0', %dl
     dec %rsi
     movb %dl, (%rsi)
@@ -142,11 +142,11 @@ print_num:
     mov $1, %rax
     mov $1, %rdi
     lea buffer(%rip), %r9
-    lea 19(%r9), %rdx          # end
-    sub %rsi, %rdx             # len
+    lea 19(%r9), %rdx          
+    sub %rsi, %rdx             # length of the string to print 
     syscall
 
-    # newline
+    # printing a new line for cleaner look
     mov $1, %rax
     mov $1, %rdi
     lea nl(%rip), %rsi
